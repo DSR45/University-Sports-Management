@@ -39,7 +39,7 @@ export const USER_ROLES = {
 // Evaluation Criteria
 export const EVALUATION_SKILLS = [
   { key: 'serving', label: 'Serving', max: 10 },
-  { key: 'reception', label: 'Reception', max: 10 },
+  { key: 'reception', label: 'Setting', max: 10 },
   { key: 'attack', label: 'Attack', max: 10 },
   { key: 'blocking', label: 'Blocking', max: 10 },
   { key: 'defence', label: 'Defence', max: 10 },

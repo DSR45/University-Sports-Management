@@ -216,7 +216,7 @@ export default function PlayerDashboard() {
             marginTop: '15px'
           }}>
             <QuickStat label="Serving" value={evaluation.serving} />
-            <QuickStat label="Reception" value={evaluation.reception} />
+            <QuickStat label="Setting" value={evaluation.reception} />
             <QuickStat label="Attack" value={evaluation.attack} />
             <QuickStat label="Blocking" value={evaluation.blocking} />
             <QuickStat label="Defence" value={evaluation.defence} />

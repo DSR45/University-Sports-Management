@@ -60,7 +60,7 @@ export default function Evaluation() {
         }}>
           <strong style={{ display: 'block', marginBottom: '4px' }}>What happens next?</strong>
           After your trial session, our coaching staff will evaluate your skills across 
-          six key areas: serving, reception, attack, blocking, defence, and game sense.
+          six key areas: serving, setting, attack, blocking, defence, and game sense.
         </div>
       </div>
     );
@@ -68,7 +68,7 @@ export default function Evaluation() {
 
   const skills = [
     { name: 'Serving', value: evaluation.serving },
-    { name: 'Reception', value: evaluation.reception },
+    { name: 'Setting', value: evaluation.reception },
     { name: 'Attack', value: evaluation.attack },
     { name: 'Blocking', value: evaluation.blocking },
     { name: 'Defence', value: evaluation.defence },
@@ -109,8 +109,7 @@ export default function Evaluation() {
               <ScoreBar
                 key={skill.name}
                 label={skill.name}
-                value={skill.value}
-                max={10}
+                score={skill.value}
               />
             ))}
           </div>

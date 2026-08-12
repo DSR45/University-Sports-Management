@@ -112,7 +112,7 @@ export default function Register() {
             <Field
               label="Full Name"
               name="name"
-              placeholder="Rahul Sharma"
+              placeholder="Enter your full name"
               value={formData.name}
               onChange={handleChange}
               error={errors.name}
@@ -123,7 +123,7 @@ export default function Register() {
               label="Email"
               name="email"
               type="email"
-              placeholder="rahul@university.edu"
+              placeholder="Enter your email"
               value={formData.email}
               onChange={handleChange}
               error={errors.email}
@@ -133,7 +133,7 @@ export default function Register() {
             <Field
               label="College Registration No."
               name="collegeRegistrationNo"
-              placeholder="2024CSE017"
+              placeholder="Enter your college registration number"
               value={formData.collegeRegistrationNo}
               onChange={handleChange}
               error={errors.collegeRegistrationNo}
@@ -143,7 +143,7 @@ export default function Register() {
             <Field
               label="Phone"
               name="phone"
-              placeholder="9876543210"
+              placeholder="Enter your phone number"
               value={formData.phone}
               onChange={handleChange}
               error={errors.phone}
@@ -154,7 +154,7 @@ export default function Register() {
               label="Year"
               name="year"
               type="number"
-              placeholder="2"
+              placeholder="Enter your year of study"
               min="1"
               max="4"
               value={formData.year}
@@ -167,7 +167,7 @@ export default function Register() {
               label="Height (cm)"
               name="heightCm"
               type="number"
-              placeholder="183"
+              placeholder="Enter your height in cm"
               min="100"
               max="250"
               value={formData.heightCm}

@@ -66,7 +66,7 @@ export default function Login() {
             <input
               name="email"
               type="email"
-              placeholder="you@university.edu"
+              placeholder="Enter your email"
               value={formData.email}
               onChange={handleChange}
               required
@@ -81,7 +81,7 @@ export default function Login() {
               <input
               name="password"
                 type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
+              placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
               required

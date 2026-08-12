@@ -1,8 +1,9 @@
 import { useAuth } from '../../context/AuthContext';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 export default function Topbar() {
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const getPageTitle = () => {
     const path = location.pathname;
@@ -40,7 +41,11 @@ export default function Topbar() {
       </div>
 
       <div className="top-actions">
-        <div className="user-chip">
+        <div 
+          className="user-chip"
+          onClick={() => user?.role !== 'ADMIN' && navigate('/player/profile')}
+          style={{ cursor: user?.role !== 'ADMIN' ? 'pointer' : 'default' }}
+        >
           <div className="avatar">{getInitials(user?.name)}</div>
           <div className="user-text">
             <strong>{user?.name}</strong>

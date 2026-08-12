@@ -227,7 +227,7 @@ export default function PlayerReview() {
         <div className="form-grid" style={{ marginTop: '20px' }}>
           {[
             { key: 'serving', label: 'Serving' },
-            { key: 'reception', label: 'Reception' },
+            { key: 'reception', label: 'Setting' },
             { key: 'attack', label: 'Attack' },
             { key: 'blocking', label: 'Blocking' },
             { key: 'defence', label: 'Defence' },
