@@ -5,7 +5,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 
-import PlayerDashboard from "./pages/player/PlayerDashboard";
+import PlayerDashboard from "./pages/player/Playerdashboard";
 import Profile from "./pages/player/Profile";
 import Evaluation from "./pages/player/Evaluation";
 import TrialStatus from "./pages/player/TrialStatus";
