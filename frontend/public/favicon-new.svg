@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="MUJ Volleyball">
+  <defs>
+    <linearGradient id="ballGrad" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#22d3ee" />
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="26" fill="#0f172a"/>
+  <circle cx="64" cy="64" r="40" fill="url(#ballGrad)" stroke="#e2e8f0" stroke-width="4"/>
+  <g stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.95">
+    <path d="M64 24v80M24 64h80M38 38l52 52M90 38L38 90"/>
+    <path d="M28 48c12 8 20 18 20 32s-8 24-20 32M100 48c-12 8-20 18-20 32s8 24 20 32" fill="none"/>
+  </g>
+  <path d="M46 52c6-8 14-12 24-12 10 0 18 4 24 12" fill="none" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+  <path d="M46 76c6 8 14 12 24 12 10 0 18-4 24-12" fill="none" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+</svg>
