@@ -25,6 +25,7 @@ function RootRedirect() {
 }
 
 function App() {
+  System.out.println("System.running");
   return (
     <BrowserRouter>
       <Routes>
