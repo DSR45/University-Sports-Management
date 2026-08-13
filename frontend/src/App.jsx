@@ -5,6 +5,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 
+import HomePage from "./pages/Home";
 import PlayerDashboard from "./pages/player/Playerdashboard";
 import Profile from "./pages/player/Profile";
 import Evaluation from "./pages/player/Evaluation";
@@ -21,7 +22,7 @@ function RootRedirect() {
   const { isAuthenticated, isAdmin, loading } = useAuth();
   if (loading) return null;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  return <Navigate to={isAdmin ? "/admin" : "/player"} replace />;
+  return <Navigate to={isAdmin ? "/admin" : "/home"} replace />;
 }
 
 function App() {
@@ -35,6 +36,13 @@ function App() {
         {/* Authentication */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        {/* Public team home */}
+        <Route path="/home" element={
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        } />
 
         {/* Player Routes */}
         <Route path="/player" element={

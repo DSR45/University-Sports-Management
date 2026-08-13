@@ -1,3 +1,4 @@
+import { Home } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 export default function Topbar() {
@@ -7,6 +8,7 @@ export default function Topbar() {
 
   const getPageTitle = () => {
     const path = location.pathname;
+    if (path === '/home') return 'Home';
     if (path.includes('/admin')) {
       if (path === '/admin') return 'Dashboard';
       if (path.includes('players')) return 'Player Management';
@@ -33,11 +35,22 @@ export default function Topbar() {
 
   return (
     <header className="topbar">
-      <div>
-        <span className="eyebrow">
-          {user?.role === 'ADMIN' ? 'ADMIN PANEL' : 'PLAYER PORTAL'}
-        </span>
-        <h2>{getPageTitle()}</h2>
+      <div className="topbar-left">
+        <div>
+          <span className="eyebrow">
+            {user?.role === 'ADMIN' ? 'ADMIN PANEL' : 'PLAYER PORTAL'}
+          </span>
+          <h2>{getPageTitle()}</h2>
+        </div>
+
+        <button
+          type="button"
+          className="header-home-button"
+          onClick={() => navigate('/home')}
+        >
+          <Home size={15} />
+          <span>Home</span>
+        </button>
       </div>
 
       <div className="top-actions">

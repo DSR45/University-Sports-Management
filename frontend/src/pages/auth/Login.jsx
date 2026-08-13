@@ -31,7 +31,7 @@ export default function Login() {
       if (user.role === 'ADMIN') {
         navigate('/admin');
       } else {
-        navigate('/player');
+        navigate('/home');
       }
     } catch (error) {
       console.error('Login failed:', error);

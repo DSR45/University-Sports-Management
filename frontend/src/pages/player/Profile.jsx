@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { User, Save } from 'lucide-react';
+import { User, Save, LogOut } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { playerService } from '../../services/playerService';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Profile() {
+  const { logout } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [player, setPlayer] = useState(null);
@@ -220,9 +222,22 @@ export default function Profile() {
         </div>
 
         <div className="locked-note">
-          <strong style={{ display: 'block', marginBottom: '4px' }}>🔒 Locked Fields</strong>
-          Some fields like name, email, and registration number cannot be changed. 
-          If you need to update these, please contact the admin.
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div>
+              <strong style={{ display: 'block', marginBottom: '4px' }}>🔒 Locked Fields</strong>
+              Some fields like name, email, and registration number cannot be changed. 
+              If you need to update these, please contact the admin.
+            </div>
+            <button
+              type="button"
+              onClick={logout}
+              className="primary"
+              style={{ marginLeft: 'auto', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <LogOut size={16} />
+              Logout
+            </button>
+          </div>
         </div>
       </form>
     </div>

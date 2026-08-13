@@ -57,16 +57,18 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div className="sidebar-bottom">
-        <button
-          onClick={logout}
-          className="nav-item"
-          style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'left' }}
-        >
-          <LogOut size={18} />
-          <span>Logout</span>
-        </button>
-      </div>
+      {isAdmin && (
+        <div className="sidebar-bottom">
+          <button
+            onClick={logout}
+            className="nav-item"
+            style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'left' }}
+          >
+            <LogOut size={18} />
+            <span>Logout</span>
+          </button>
+        </div>
+      )}
     </aside>
   );
 }
