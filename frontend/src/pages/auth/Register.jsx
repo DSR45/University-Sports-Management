@@ -85,7 +85,7 @@ export default function Register() {
       };
 
       await register(payload);
-      navigate('/home');
+      navigate('/player');
     } catch (error) {
       console.error('Registration failed:', error);
       // Error is already handled by AuthContext and toast
