@@ -77,6 +77,15 @@ export default function TrialStatus() {
     if (player.status === 'REJECTED') {
       return step === 0 ? 'current' : '';
     }
+
+    if (player.status === 'SHORTLISTED') {
+      return step <= 2 ? 'done' : '';
+    }
+
+    if (player.status === 'SELECTED') {
+      return step <= 3 ? 'done' : '';
+    }
+
     if (step < currentStatus.step) return 'done';
     if (step === currentStatus.step) return 'current';
     return '';

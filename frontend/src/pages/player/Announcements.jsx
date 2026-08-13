@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Megaphone, ChevronRight, Calendar, User } from 'lucide-react';
+import { Megaphone, Calendar, User } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { announcementService } from '../../services/announcementService';
 
@@ -139,8 +139,6 @@ export default function Announcements() {
                     </div>
                   </div>
                 </div>
-
-                <ChevronRight size={16} className="announcement-arrow" />
               </div>
             ))}
           </div>

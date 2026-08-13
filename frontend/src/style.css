@@ -921,6 +921,11 @@ a {
   box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.08);
 }
 
+.timeline-step.done strong,
+.timeline-step.done span {
+  color: #238447;
+}
+
 .timeline-line {
   height: 2px;
   background: #e7eaee;
@@ -1234,6 +1239,7 @@ td {
 .status-buttons button {
   border: 0;
   background: transparent;
+  min-width: 0;
 }
 
 
@@ -1248,8 +1254,10 @@ td {
   padding: 30px;
   background:
     linear-gradient(135deg, rgba(15, 23, 42, 0.78), rgba(49, 46, 129, 0.7)),
-    url('./assets/bg1.png') center center / cover no-repeat;
-  background-attachment: fixed;
+    url('./assets/bg1.png') center top / cover no-repeat;
+  background-attachment: scroll;
+  background-repeat: no-repeat;
+  background-position: top center;
   position: relative;
   overflow: hidden;
 }
@@ -1390,6 +1398,22 @@ td {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .review-header {
+    flex-wrap: wrap;
+  }
+
+  .review-header > .secondary {
+    margin-left: 0;
+  }
+
+  .status-buttons {
+    width: 100%;
+  }
+
+  .status-buttons button {
+    flex: 1 1 calc(50% - 7px);
+  }
+
   .topbar {
     padding: 15px 20px;
   }
@@ -1398,6 +1422,13 @@ td {
 @media (max-width: 600px) {
   .content {
     padding: 16px;
+  }
+
+  .auth-page {
+    padding: 15px;
+    background-size: 120% auto;
+    background-position: top center;
+    background-attachment: scroll;
   }
 
   .topbar {
@@ -1440,6 +1471,34 @@ td {
     width: 100%;
   }
 
+  .review-header {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .review-name {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .review-header .large-avatar {
+    width: 50px;
+    height: 50px;
+    font-size: 14px;
+  }
+
+  .status-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .status-buttons button {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 12px;
+  }
+
   .timeline {
     grid-template-columns: 1fr;
     gap: 15px;
@@ -1468,12 +1527,6 @@ td {
   .status-editor {
     align-items: flex-start;
     flex-direction: column;
-  }
-
-  .auth-page {
-    padding: 15px;
-    background-size: cover;
-    background-position: center center;
   }
 
   .auth-card {
