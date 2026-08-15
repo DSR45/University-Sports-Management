@@ -1,10 +1,17 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from './layout/Sidebar';
 import Topbar from './layout/Topbar';
 
 export default function ProtectedRoute({ children, adminOnly = false }) {
-  const { user, isAuthenticated, isAdmin, loading } = useAuth();
+  const { isAuthenticated, isAdmin, loading } = useAuth();
+  const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [location.pathname]);
 
   if (loading) {
     return (
@@ -29,9 +36,10 @@ export default function ProtectedRoute({ children, adminOnly = false }) {
 
   return (
     <div className="app">
-      <Sidebar />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      {isSidebarOpen && <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)} />}
       <div className="main">
-        <Topbar />
+        <Topbar onMenuClick={() => setIsSidebarOpen((open) => !open)} />
         <div className="content">
           {children}
         </div>

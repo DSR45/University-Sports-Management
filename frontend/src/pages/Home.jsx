@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { ChevronRight } from 'lucide-react';
 import playerImage from '../assets/player.png';
 
 const teamPlayers = [
@@ -147,6 +148,14 @@ const positions = [
 const formatPosition = (position) =>
   position.replace('_', ' ');
 
+const chunkPlayers = (players, size) => {
+  const chunks = [];
+  for (let index = 0; index < players.length; index += size) {
+    chunks.push(players.slice(index, index + size));
+  }
+  return chunks;
+};
+
 export default function HomePage() {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
 
@@ -162,6 +171,13 @@ export default function HomePage() {
       return acc;
     }, {});
   }, []);
+
+  const groupedPlayerRows = useMemo(() => {
+    return positions.reduce((acc, position) => {
+      acc[position] = chunkPlayers(groupedPlayers[position], 3);
+      return acc;
+    }, {});
+  }, [groupedPlayers]);
 
   return (
     <>
@@ -243,23 +259,37 @@ export default function HomePage() {
             return (
               <div key={position} className="position-group">
                 <h4>{formatPosition(position)}</h4>
-                <div className="player-grid">
-                  {players.map((player) => (
-                    <button
-                      key={player.id}
-                      type="button"
-                      className="player-card"
-                      onClick={() => setSelectedPlayer(player)}
-                      style={{
-                        backgroundImage: `linear-gradient(180deg, rgba(15, 23, 42, 0.1), rgba(15, 23, 42, 0.8)), url(${player.photo})`
-                      }}
+                <div className="player-rows">
+                  {groupedPlayerRows[position].map((row, rowIndex) => (
+                    <div
+                      key={`${position}-row-${rowIndex}`}
+                      className={`player-row ${rowIndex < groupedPlayerRows[position].length - 1 ? 'has-more' : ''}`}
                     >
-                      <div className="player-card-copy">
-                        <strong>{player.name}</strong>
-                        <span>#{player.jerseyNumber}</span>
-                        <small>{formatPosition(player.position)}</small>
-                      </div>
-                    </button>
+                      {row.map((player) => (
+                        <button
+                          key={player.id}
+                          type="button"
+                          className="player-card"
+                          onClick={() => setSelectedPlayer(player)}
+                          style={{
+                            backgroundImage: `linear-gradient(180deg, rgba(15, 23, 42, 0.1), rgba(15, 23, 42, 0.8)), url(${player.photo})`
+                          }}
+                        >
+                          <div className="player-card-copy">
+                            <strong>{player.name}</strong>
+                            <span>#{player.jerseyNumber}</span>
+                            <small>{formatPosition(player.position)}</small>
+                          </div>
+                        </button>
+                      ))}
+
+                      {rowIndex < groupedPlayerRows[position].length - 1 && (
+                        <div className="player-scroll-hint" aria-hidden="true">
+                          <span>Swipe</span>
+                          <ChevronRight size={14} />
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>

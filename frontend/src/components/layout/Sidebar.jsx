@@ -11,9 +11,9 @@ import {
   LogOut
 } from 'lucide-react';
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen = false, onClose }) {
   const location = useLocation();
-  const { isAdmin, logout, user } = useAuth();
+  const { isAdmin, logout } = useAuth();
 
   const isActive = (path) => location.pathname === path;
   const playerNavItems = [
@@ -32,7 +32,11 @@ export default function Sidebar() {
 
   const navItems = isAdmin ? adminNavItems : playerNavItems;
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+      <button type="button" className="sidebar-close-button" onClick={onClose} aria-label="Close menu">
+        <span />
+      </button>
+
       <div className="brand">
         <div className="brand-mark">
           <Volleyball size={24} />
@@ -50,6 +54,7 @@ export default function Sidebar() {
             key={item.path}
             to={item.path}
             className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
+            onClick={onClose}
           >
             <item.icon size={18} />
             <span>{item.label}</span>

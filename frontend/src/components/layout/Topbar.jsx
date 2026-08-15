@@ -1,33 +1,18 @@
-import { Home } from 'lucide-react';
+import { Volleyball } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useLocation, useNavigate } from 'react-router-dom';
-export default function Topbar() {
+export default function Topbar({ onMenuClick }) {
   const { user } = useAuth();
-  const location = useLocation();
   const navigate = useNavigate();
-
-  const getPageTitle = () => {
-    const path = location.pathname;
-    if (path === '/home') return 'Home';
-    if (path.includes('/admin')) {
-      if (path === '/admin') return 'Dashboard';
-      if (path.includes('players')) return 'Player Management';
-      if (path.includes('announcements')) return 'Announcements';
-    } else {
-      if (path === '/player') return 'Dashboard';
-      if (path.includes('profile')) return 'My Profile';
-      if (path.includes('evaluation')) return 'My Evaluation';
-      if (path.includes('trial-status')) return 'Trial Status';
-      if (path.includes('announcements')) return 'Announcements';
-    }
-    return 'Dashboard';
-  };
+  const headerNavItems = [
+    { to: '/home', label: 'Home' }
+  ];
 
   const getInitials = (name) => {
     if (!name) return 'U';
     return name
       .split(' ')
-      .map(n => n[0])
+      .map((part) => part[0])
       .join('')
       .toUpperCase()
       .slice(0, 2);
@@ -36,25 +21,25 @@ export default function Topbar() {
   return (
     <header className="topbar">
       <div className="topbar-left">
-        <div>
-          <span className="eyebrow">
-            {user?.role === 'ADMIN' ? 'ADMIN PANEL' : 'PLAYER PORTAL'}
-          </span>
-          <h2>{getPageTitle()}</h2>
-        </div>
-
         <button
           type="button"
-          className="header-home-button"
-          onClick={() => navigate('/home')}
+          className="sidebar-toggle-button"
+          onClick={onMenuClick}
+          aria-label="Open menu"
         >
-          <Home size={15} />
-          <span>Home</span>
+          <Volleyball size={18} />
         </button>
+        <nav className="topbar-nav" aria-label="Header navigation">
+          {headerNavItems.map((item) => (
+            <Link key={item.to} to={item.to} className="topbar-nav-item">
+              {item.label}
+            </Link>
+          ))}
+        </nav>
       </div>
 
       <div className="top-actions">
-        <div 
+        <div
           className="user-chip"
           onClick={() => user?.role !== 'ADMIN' && navigate('/player/profile')}
           style={{ cursor: user?.role !== 'ADMIN' ? 'pointer' : 'default' }}
