@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ArrowRight, ChevronRight, ShieldCheck, Trophy } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { publicService } from '../../services/publicService';
 
@@ -55,9 +55,6 @@ export default function LandingPage() {
           <h1>MUJ VOLLEYBALL</h1>
           <p className="philosophy">PASSION • DISCIPLINE • TEAMWORK</p>
           <p className="hero-desc">{data.team?.description}</p>
-          <div className="hero-ctas">
-            <button onClick={() => navigate('/join')} className="btn-primary">JOIN THE TEAM</button>
-          </div>
         </div>
       </section>
 
@@ -83,7 +80,10 @@ export default function LandingPage() {
                 <span>{data.result.competition}</span>
                 <span>{new Date(data.result.date).toLocaleDateString()}</span>
               </div>
-              <Link to="/matches" className="btn-text">VIEW ALL MATCHES <ChevronRight size={16} /></Link>
+              <Link to="/matches" className="section-action-link">
+                <span>VIEW ALL MATCHES</span>
+                <ChevronRight size={16} />
+              </Link>
             </div>
           </div>
         </section>
@@ -96,7 +96,10 @@ export default function LandingPage() {
               <span className="eyebrow">TEAM PREVIEW</span>
               <h2>Our Athletes</h2>
             </div>
-            <Link to="/team" className="btn-secondary">VIEW FULL TEAM</Link>
+            <Link to="/team" className="section-action-link">
+              <span>VIEW FULL TEAM</span>
+              <ChevronRight size={16} />
+            </Link>
           </div>
           <div className="player-grid">
             {data.players.map((player) => (
@@ -123,7 +126,10 @@ export default function LandingPage() {
               <span className="eyebrow">LATEST NEWS</span>
               <h2>Inside the Court</h2>
             </div>
-            <Link to="/news" className="btn-secondary">VIEW ALL NEWS</Link>
+            <Link to="/news" className="section-action-link">
+              <span>VIEW ALL NEWS</span>
+              <ChevronRight size={16} />
+            </Link>
           </div>
           <div className="news-grid">
             {data.news.map((item) => (
@@ -146,7 +152,10 @@ export default function LandingPage() {
               <span className="eyebrow">EXCELLENCE</span>
               <h2>Achievements</h2>
             </div>
-            <Link to="/achievements" className="btn-secondary">VIEW ALL</Link>
+            <Link to="/achievements" className="section-action-link">
+              <span>VIEW ALL</span>
+              <ChevronRight size={16} />
+            </Link>
           </div>
           <div className="achievements-grid">
             {data.achievements.map((ach) => (
@@ -163,19 +172,31 @@ export default function LandingPage() {
       <section className="about-identity-section bg-dark">
         <div className="container">
           <div className="identity-content">
+            <div className="identity-label">
+              <ShieldCheck size={18} />
+              <span>ABOUT MUJ VOLLEYBALL</span>
+            </div>
             <span className="eyebrow">TEAM IDENTITY</span>
             <h2>Excellence, Discipline, Resilience</h2>
             <p>{data.team?.vision}</p>
-            <Link to="/about" className="btn-primary">ABOUT MUJ VOLLEYBALL</Link>
+            <Link to="/about" className="section-action-link light-link">
+              <span>ABOUT MUJ VOLLEYBALL</span>
+              <ArrowRight size={16} />
+            </Link>
           </div>
         </div>
       </section>
 
       <section className="final-cta">
         <div className="container">
-          <h2>READY TO REPRESENT MUJ?</h2>
-          <p>Be part of the MUJ Volleyball journey.</p>
-          <button onClick={() => navigate('/join')} className="btn-primary">JOIN THE TEAM</button>
+          <div className="cta-panel card">
+            <div className="cta-icon">
+              <Trophy size={20} />
+            </div>
+            <h2>READY TO REPRESENT MUJ?</h2>
+            <p>Be part of the MUJ Volleyball journey.</p>
+            <button onClick={() => navigate('/join')} className="cta-button">JOIN THE TEAM</button>
+          </div>
         </div>
       </section>
     </div>
