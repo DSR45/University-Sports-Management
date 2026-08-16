@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PublicLayout from "./components/public/PublicLayout";
 
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
@@ -17,12 +18,20 @@ import Players from "./pages/admin/Players";
 import PlayerReview from "./pages/admin/PlayerReview";
 import AdminAnnouncements from "./pages/admin/Announcements";
 import NotFound from "./pages/NotFound";
+import LandingPage from "./pages/public/LandingPage";
+import TeamPage from "./pages/public/TeamPage";
+import MatchesPage from "./pages/public/MatchesPage";
+import NewsPage from "./pages/public/NewsPage";
+import GalleryPage from "./pages/public/GalleryPage";
+import AboutPage from "./pages/public/AboutPage";
+import AchievementsPage from "./pages/public/AchievementsPage";
+import EventsPage from "./pages/public/EventsPage";
+import VideosPage from "./pages/public/VideosPage";
+import JoinPage from "./pages/public/JoinPage";
+import ContactPage from "./pages/public/ContactPage";
 
-function RootRedirect() {
-  const { isAuthenticated, isAdmin, loading } = useAuth();
-  if (loading) return null;
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  return <Navigate to={isAdmin ? "/admin" : "/home"} replace />;
+function PublicPage({ children }) {
+  return <PublicLayout>{children}</PublicLayout>;
 }
 
 function App() {
@@ -30,14 +39,24 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Default */}
-        <Route path="/" element={<RootRedirect />} />
+        {/* Public Website */}
+        <Route path="/" element={<PublicPage><LandingPage /></PublicPage>} />
+        <Route path="/team" element={<PublicPage><TeamPage /></PublicPage>} />
+        <Route path="/matches" element={<PublicPage><MatchesPage /></PublicPage>} />
+        <Route path="/news" element={<PublicPage><NewsPage /></PublicPage>} />
+        <Route path="/gallery" element={<PublicPage><GalleryPage /></PublicPage>} />
+        <Route path="/about" element={<PublicPage><AboutPage /></PublicPage>} />
+        <Route path="/achievements" element={<PublicPage><AchievementsPage /></PublicPage>} />
+        <Route path="/events" element={<PublicPage><EventsPage /></PublicPage>} />
+        <Route path="/videos" element={<PublicPage><VideosPage /></PublicPage>} />
+        <Route path="/join" element={<PublicPage><JoinPage /></PublicPage>} />
+        <Route path="/contact" element={<PublicPage><ContactPage /></PublicPage>} />
 
         {/* Authentication */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Public team home */}
+        {/* Private team home */}
         <Route path="/home" element={
           <ProtectedRoute>
             <HomePage />
