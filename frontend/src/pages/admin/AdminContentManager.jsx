@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { adminService } from '../../services/adminService';
+import { getYouTubeEmbedUrl } from '../../utils/videoUtils';
 
 const FIELD_CLASS = 'w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500';
 const STATUS_OPTIONS = ['UPCOMING', 'PAST', 'CANCELLED'];
@@ -178,13 +179,18 @@ export function AdminResourceManager({ type }) {
       return;
     }
 
+    const formDataToSave = { ...formData };
+    if (type === 'videos' && formDataToSave.videoUrl) {
+      formDataToSave.videoUrl = getYouTubeEmbedUrl(formDataToSave.videoUrl);
+    }
+
     try {
       if (editingItem && config.update) {
-        await config.update(editingItem.id, formData).catch(() => {});
-        persist(items.map((item) => (item.id === editingItem.id ? { ...item, ...formData } : item)));
+        await config.update(editingItem.id, formDataToSave).catch(() => {});
+        persist(items.map((item) => (item.id === editingItem.id ? { ...item, ...formDataToSave } : item)));
         toast.success(`${config.title.slice(0, -1)} updated`);
       } else {
-        const newItem = { id: `${type}-${Date.now()}`, ...formData };
+        const newItem = { id: `${type}-${Date.now()}`, ...formDataToSave };
         await config.create(newItem).catch(() => {});
         persist([newItem, ...items]);
         toast.success(`${config.title.slice(0, -1)} created`);
@@ -259,6 +265,16 @@ export function AdminResourceManager({ type }) {
                 </div>
                 {item.image || item.thumbnail ? (
                   <img src={item.image || item.thumbnail} alt={item.title} className="w-full h-32 object-cover rounded-xl border border-slate-800 mb-4" />
+                ) : item.videoUrl ? (
+                  <div className="w-full h-32 rounded-xl overflow-hidden border border-slate-800 mb-4 bg-slate-950">
+                    <iframe
+                      src={getYouTubeEmbedUrl(item.videoUrl)}
+                      title={item.title}
+                      className="w-full h-full border-0"
+                      allowFullScreen
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
+                  </div>
                 ) : null}
                 <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
                 <p className="text-xs text-indigo-300 mb-2">{config.cardSubtitle(item)}</p>
