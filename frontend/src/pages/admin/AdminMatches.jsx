@@ -11,16 +11,16 @@ export default function AdminMatches() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMatch, setEditingMatch] = useState(null);
 
-  const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState({
     opponent: '',
-    tournamentName: 'Inter-University Championship',
+    competition: 'Inter-University Championship',
+    opponentLogo: '',
     date: new Date().toISOString().substring(0, 10),
-    time: '05:00 PM',
+    time: '17:00',
     venue: 'MUJ Sports Complex Court 1',
-    status: 'Upcoming',
-    mujScore: 0,
-    opponentScore: 0,
-    setBreakdown: ''
+    status: 'UPCOMING',
+    result: '',
+    sets: ''
   });
 
   useEffect(() => {
@@ -45,26 +45,26 @@ export default function AdminMatches() {
     localStorage.setItem('muj_admin_matches', JSON.stringify(updated));
   };
 
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.opponent) {
-      toast.error('Opponent team name is required');
+    if (!formData.opponent || !formData.date || !formData.time || !formData.venue || !formData.competition || !formData.status) {
+      toast.error('Opponent, date, time, venue, competition, and status are required');
       return;
     }
 
     try {
       if (editingMatch) {
-        await adminService.updateMatch(editingMatch.id, formData).catch(() => {});
+        await adminService.updateMatch(editingMatch.id, formData);
         const updated = matches.map((m) => (m.id === editingMatch.id ? { ...m, ...formData } : m));
         saveToStorage(updated);
         toast.success('Match details updated!');
       } else {
-        const newMatch = {
+        const res = await adminService.createMatch(formData);
+        const created = res.data || {
           id: `match-${Date.now()}`,
           ...formData
         };
-        await adminService.createMatch(newMatch).catch(() => {});
-        const updated = [newMatch, ...matches];
+        const updated = [created, ...matches];
         saveToStorage(updated);
         toast.success('Match created successfully!');
       }
@@ -72,7 +72,8 @@ export default function AdminMatches() {
       setEditingMatch(null);
       resetForm();
     } catch (err) {
-      toast.error('Failed to save match');
+      const msg = err.response?.data?.message || err.message || 'Failed to save match';
+      toast.error(msg);
     }
   };
 
@@ -89,18 +90,18 @@ export default function AdminMatches() {
     }
   };
 
-  const openEdit = (match) => {
+    const openEdit = (match) => {
     setEditingMatch(match);
     setFormData({
       opponent: match.opponent || '',
-      tournamentName: match.tournamentName || 'Inter-University Championship',
+      competition: match.competition || match.tournamentName || 'Inter-University Championship',
+      opponentLogo: match.opponentLogo || '',
       date: match.date ? match.date.substring(0, 10) : '',
-      time: match.time || '05:00 PM',
+      time: match.time ? match.time.substring(0, 5) : '17:00',
       venue: match.venue || 'MUJ Outdoor Complex',
-      status: match.status || 'Upcoming',
-      mujScore: match.mujScore || 0,
-      opponentScore: match.opponentScore || 0,
-      setBreakdown: match.setBreakdown || ''
+      status: match.status || 'UPCOMING',
+      result: match.result || `${match.mujScore ?? 0} - ${match.opponentScore ?? 0}`,
+      sets: match.sets || match.setBreakdown || ''
     });
     setIsModalOpen(true);
   };
@@ -108,21 +109,21 @@ export default function AdminMatches() {
   const resetForm = () => {
     setFormData({
       opponent: '',
-      tournamentName: 'Inter-University Championship',
+      competition: 'Inter-University Championship',
+      opponentLogo: '',
       date: new Date().toISOString().substring(0, 10),
-      time: '05:00 PM',
+      time: '17:00',
       venue: 'MUJ Outdoor Complex',
-      status: 'Upcoming',
-      mujScore: 0,
-      opponentScore: 0,
-      setBreakdown: ''
+      status: 'UPCOMING',
+      result: '',
+      sets: ''
     });
   };
 
   const filteredMatches = matches.filter(
     (m) =>
       m.opponent.toLowerCase().includes(search.toLowerCase()) ||
-      (m.tournamentName && m.tournamentName.toLowerCase().includes(search.toLowerCase()))
+      ((m.competition || m.tournamentName || '').toLowerCase().includes(search.toLowerCase()))
   );
 
   return (
@@ -177,13 +178,13 @@ export default function AdminMatches() {
               <div>
                 <div className="flex items-center justify-between text-xs mb-3">
                   <span className="px-2.5 py-0.5 rounded-full bg-indigo-600/20 text-indigo-400 font-bold text-[10px] uppercase tracking-wider">
-                    {m.tournamentName || 'Tournament'}
+                    {m.competition || m.tournamentName || 'Tournament'}
                   </span>
                   <span
                     className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                      m.status === 'Completed'
-                        ? 'bg-emerald-500/10 text-emerald-400'
-                        : m.status === 'Live'
+                      m.status === 'COMPLETED'
+                                              ? 'bg-emerald-500/10 text-emerald-400'
+                                              : m.status === 'CANCELLED'
                         ? 'bg-amber-500/10 text-amber-400'
                         : 'bg-indigo-500/10 text-indigo-400'
                     }`}
@@ -196,12 +197,12 @@ export default function AdminMatches() {
                   <div className="flex items-center justify-around font-extrabold text-white text-base">
                     <span>MUJ</span>
                     <span className="text-indigo-400 text-xl font-black">
-                      {m.mujScore ?? 0} - {m.opponentScore ?? 0}
+                      {m.result || `${m.mujScore ?? 0} - ${m.opponentScore ?? 0}`}
                     </span>
                     <span>{m.opponent}</span>
                   </div>
-                  {m.setBreakdown && (
-                    <div className="text-[10px] text-slate-400 mt-2 font-mono">{m.setBreakdown}</div>
+                                    {(m.sets || m.setBreakdown) && (
+                    <div className="text-[10px] text-slate-400 mt-2 font-mono">{m.sets || m.setBreakdown}</div>
                   )}
                 </div>
 
@@ -265,15 +266,15 @@ export default function AdminMatches() {
                   <label className="font-semibold block mb-1">Tournament / Event</label>
                   <input
                     type="text"
-                    value={formData.tournamentName}
-                    onChange={(e) => setFormData({ ...formData, tournamentName: e.target.value })}
+                                        value={formData.competition}
+                    onChange={(e) => setFormData({ ...formData, competition: e.target.value })}
                     placeholder="e.g. Inter-University Cup"
                     className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="font-semibold block mb-1">Date *</label>
                   <input
@@ -285,50 +286,46 @@ export default function AdminMatches() {
                   />
                 </div>
                 <div>
+                  <label className="font-semibold block mb-1">Time *</label>
+                  <input
+                    type="time"
+                    value={formData.time}
+                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                    required
+                  />
+                </div>
+                <div>
                   <label className="font-semibold block mb-1">Status</label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                     className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
                   >
-                    <option value="Upcoming">Upcoming</option>
-                    <option value="Live">Live</option>
-                    <option value="Completed">Completed</option>
+                    <option value="UPCOMING">UPCOMING</option>
+                                        <option value="COMPLETED">COMPLETED</option>
+                                        <option value="CANCELLED">CANCELLED</option>
                   </select>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 p-3 bg-slate-950/50 rounded-xl border border-slate-800">
-                <div>
-                  <label className="font-semibold block mb-1 text-indigo-400">MUJ Sets Won</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="5"
-                    value={formData.mujScore}
-                    onChange={(e) => setFormData({ ...formData, mujScore: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold"
-                  />
-                </div>
-                <div>
-                  <label className="font-semibold block mb-1 text-rose-400">Opponent Sets Won</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="5"
-                    value={formData.opponentScore}
-                    onChange={(e) => setFormData({ ...formData, opponentScore: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold"
-                  />
-                </div>
+                            <div>
+                <label className="font-semibold block mb-1">Result</label>
+                <input
+                  type="text"
+                  value={formData.result}
+                  onChange={(e) => setFormData({ ...formData, result: e.target.value })}
+                  placeholder="e.g. 3 - 1"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold"
+                />
               </div>
 
               <div>
                 <label className="font-semibold block mb-1">Set Breakdown (Optional)</label>
                 <input
                   type="text"
-                  value={formData.setBreakdown}
-                  onChange={(e) => setFormData({ ...formData, setBreakdown: e.target.value })}
+                                    value={formData.sets}
+                  onChange={(e) => setFormData({ ...formData, sets: e.target.value })}
                   placeholder="e.g. 25-21, 23-25, 25-18, 25-20"
                   className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-mono"
                 />

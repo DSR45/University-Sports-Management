@@ -33,9 +33,8 @@ export default function Sidebar({ isOpen = false, onClose }) {
   ];
 
     const adminNavItems = [
-    { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/admin/pages', label: 'Public Pages', icon: FileText },
-    { path: '/admin/news', label: 'News Articles', icon: Newspaper },
+        { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+        { path: '/admin/news', label: 'News Articles', icon: Newspaper },
     { path: '/admin/events', label: 'Events & Trials', icon: Calendar },
     { path: '/admin/matches', label: 'Matches & Scores', icon: Trophy },
     { path: '/admin/achievements', label: 'Achievements', icon: Award },
@@ -49,11 +48,7 @@ export default function Sidebar({ isOpen = false, onClose }) {
   const navItems = isAdmin ? adminNavItems : playerNavItems;
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-      <button type="button" className="sidebar-close-button" onClick={onClose} aria-label="Close menu">
-        <span />
-      </button>
-
-      <div className="brand">
+          <div className="brand">
         <div className="brand-mark">
           <Volleyball size={24} />
         </div>

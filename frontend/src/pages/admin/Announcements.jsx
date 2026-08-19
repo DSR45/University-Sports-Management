@@ -9,9 +9,9 @@ export default function AdminAnnouncements() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
-    title: '',
-    message: ''
-  });
+      title: '',
+      content: ''
+    });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -34,13 +34,13 @@ export default function AdminAnnouncements() {
   const handleOpenModal = (announcement = null) => {
     if (announcement) {
       setEditingId(announcement.id);
-      setFormData({
-        title: announcement.title,
-        message: announcement.message
+            setFormData({
+        title: announcement.title || '',
+        content: announcement.content || announcement.message || ''
       });
     } else {
       setEditingId(null);
-      setFormData({ title: '', message: '' });
+      setFormData({ title: '', content: '' });
     }
     setShowModal(true);
   };
@@ -48,7 +48,7 @@ export default function AdminAnnouncements() {
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingId(null);
-    setFormData({ title: '', message: '' });
+    setFormData({ title: '', content: '' });
   };
 
   const handleSubmit = async (e) => {
@@ -140,7 +140,7 @@ export default function AdminAnnouncements() {
                   <span>
                     {new Date(announcement.createdAt).toLocaleDateString()} by {announcement.createdByName}
                   </span>
-                  <p>{announcement.message}</p>
+                  <p>{announcement.content || announcement.message}</p>
                 </div>
 
                 <div className="row-actions">
@@ -183,9 +183,9 @@ export default function AdminAnnouncements() {
 
                 <label className="field" style={{ marginTop: '16px' }}>
                   <span>Message</span>
-                  <textarea
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                                    <textarea
+                    value={formData.content}
+                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                     placeholder="Enter the announcement details here..."
                     required
                     rows="6"

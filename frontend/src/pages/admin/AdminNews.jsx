@@ -4,6 +4,12 @@ import { toast } from 'react-toastify';
 import { adminService } from '../../services/adminService';
 import { mockNews } from '../../data/mock/news';
 
+const toLocalDateTime = (dateValue) => {
+  if (!dateValue) return new Date().toISOString().slice(0, 19);
+  if (dateValue.includes('T')) return dateValue.slice(0, 19);
+  return `${dateValue}T00:00:00`;
+};
+
 export default function AdminNews() {
   const [newsList, setNewsList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -54,38 +60,43 @@ export default function AdminNews() {
       return;
     }
 
-    try {
-      if (editingArticle) {
-        await adminService.updateNews(editingArticle.id, formData).catch(() => {});
-        const updated = newsList.map((item) =>
-          item.id === editingArticle.id ? { ...item, ...formData } : item
-        );
-        saveNewsToStorage(updated);
-        toast.success('News article updated!');
-      } else {
-        const newArticle = {
-          id: `news-${Date.now()}`,
-          ...formData,
-          publishedAt: formData.publishedAt || new Date().toISOString()
-        };
-        await adminService.createNews(newArticle).catch(() => {});
-        const updated = [newArticle, ...newsList];
-        saveNewsToStorage(updated);
-        toast.success('News article published!');
-      }
-      setIsModalOpen(false);
-      setEditingArticle(null);
-      setFormData({
-        title: '',
-        excerpt: '',
-        content: '',
-        coverImage: '',
-        author: 'Sports Desk',
-        publishedAt: new Date().toISOString().substring(0, 10)
-      });
-    } catch (err) {
-      toast.error('Failed to save news article');
-    }
+        try {
+          const payload = {
+            ...formData,
+            publishedAt: toLocalDateTime(formData.publishedAt)
+          };
+
+          if (editingArticle) {
+            await adminService.updateNews(editingArticle.id, payload);
+            const updated = newsList.map((item) =>
+              item.id === editingArticle.id ? { ...item, ...payload } : item
+            );
+            saveNewsToStorage(updated);
+            toast.success('News article updated!');
+          } else {
+            const res = await adminService.createNews(payload);
+            const created = res.data || {
+              id: `news-${Date.now()}`,
+              ...payload
+            };
+            const updated = [created, ...newsList];
+            saveNewsToStorage(updated);
+            toast.success('News article published!');
+          }
+          setIsModalOpen(false);
+          setEditingArticle(null);
+          setFormData({
+            title: '',
+            excerpt: '',
+            content: '',
+            coverImage: '',
+            author: 'Sports Desk',
+            publishedAt: new Date().toISOString().substring(0, 10)
+          });
+        } catch (err) {
+          const msg = err.response?.data?.message || err.message || 'Failed to save news article';
+          toast.error(msg);
+        }
   };
 
   const handleDelete = async (id) => {

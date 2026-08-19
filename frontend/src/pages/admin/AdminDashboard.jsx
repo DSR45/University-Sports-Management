@@ -82,20 +82,14 @@ export default function AdminDashboard() {
         </div>
 
         <div style={{ display: 'flex', gap: '10px' }}>
-          <button 
-            className="secondary"
-            onClick={() => navigate('/admin/pages')}
-          >
-            Manage Public Pages
-          </button>
-          <button 
-            className="primary"
-            onClick={() => navigate('/admin/players')}
-          >
-            <Users size={16} />
-            Manage Players
-          </button>
-        </div>
+                  <button 
+                    className="primary"
+                    onClick={() => navigate('/admin/players')}
+                  >
+                    <Users size={16} />
+                    Manage Players
+                  </button>
+                </div>
       </div>
 
       <div className="stats-grid six">

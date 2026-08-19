@@ -17,8 +17,10 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import Players from "./pages/admin/Players";
 import PlayerReview from "./pages/admin/PlayerReview";
 import AdminAnnouncements from "./pages/admin/Announcements";
-import AdminPages from "./pages/admin/AdminPages";
 import AdminNews from "./pages/admin/AdminNews";
+import AdminEvents from "./pages/admin/AdminEvents";
+import AdminMatches from "./pages/admin/AdminMatches";
+import { AdminAchievements, AdminGallery, AdminVideos, AdminTeamInfo } from "./pages/admin/AdminContentManager";
 import NotFound from "./pages/NotFound";
 import LandingPage from "./pages/public/LandingPage";
 import TeamPage from "./pages/public/TeamPage";
@@ -98,14 +100,40 @@ function App() {
             <AdminDashboard />
           </ProtectedRoute>
         } />
-        <Route path="/admin/pages" element={
-          <ProtectedRoute adminOnly>
-            <AdminPages />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin/news" element={
+        
+                <Route path="/admin/news" element={
           <ProtectedRoute adminOnly>
             <AdminNews />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/events" element={
+          <ProtectedRoute adminOnly>
+            <AdminEvents />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/matches" element={
+          <ProtectedRoute adminOnly>
+            <AdminMatches />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/achievements" element={
+          <ProtectedRoute adminOnly>
+            <AdminAchievements />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/gallery" element={
+          <ProtectedRoute adminOnly>
+            <AdminGallery />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/videos" element={
+          <ProtectedRoute adminOnly>
+            <AdminVideos />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/team-info" element={
+          <ProtectedRoute adminOnly>
+            <AdminTeamInfo />
           </ProtectedRoute>
         } />
         <Route path="/admin/players" element={

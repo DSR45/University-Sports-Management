@@ -110,12 +110,6 @@ export const adminService = {
   },
   updatePlayerStatus: (id, status) => api.patch(`/admin/players/${id}/status`, { status }).catch(() => ({ data: { id, status } })),
   updatePlayerRoster: (id, rosterData) => api.patch(`/admin/players/${id}/roster`, rosterData).catch(() => ({ data: rosterData })),
-  updatePlayer: (id, data) => api.put(`/admin/players/${id}`, data).catch(() => ({ data })),
-  deletePlayer: (id) => api.delete(`/admin/players/${id}`).catch(() => ({ data: { id } })),
-
-  // Pages & Public Directory Management
-  getPages: () => safeCall(() => api.get('/admin/pages'), 'muj_admin_pages', null),
-  createPage: (data) => api.post('/admin/pages', data).catch(() => ({ data })),
-  updatePage: (id, data) => api.put(`/admin/pages/${id}`, data).catch(() => ({ data })),
-  deletePage: (id) => api.delete(`/admin/pages/${id}`).catch(() => ({ data: { id } }))
+    updatePlayer: (id, data) => api.put(`/admin/players/${id}`, data).catch(() => ({ data })),
+  deletePlayer: (id) => api.delete(`/admin/players/${id}`).catch(() => ({ data: { id } }))
 };

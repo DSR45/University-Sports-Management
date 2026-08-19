@@ -11,14 +11,14 @@ export default function AdminEvents() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
 
-  const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState({
     title: '',
-    date: new Date().toISOString().substring(0, 10),
-    time: '04:00 PM',
-    location: 'MUJ Outdoor Volleyball Complex',
-    type: 'Trial',
     description: '',
-    registrationOpen: true
+    date: new Date().toISOString().substring(0, 10),
+    time: '16:00',
+    venue: 'MUJ Outdoor Volleyball Complex',
+    image: '',
+    status: 'UPCOMING'
   });
 
   useEffect(() => {
@@ -43,28 +43,28 @@ export default function AdminEvents() {
     localStorage.setItem('muj_admin_events', JSON.stringify(updated));
   };
 
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.date || !formData.location) {
-      toast.error('Title, Date, and Location are required');
+    if (!formData.title || !formData.description || !formData.date || !formData.time || !formData.venue || !formData.status) {
+      toast.error('Title, description, date, time, venue, and status are required');
       return;
     }
 
     try {
       if (editingEvent) {
-        await adminService.updateEvent(editingEvent.id, formData).catch(() => {});
+        await adminService.updateEvent(editingEvent.id, formData);
         const updated = eventsList.map((item) =>
           item.id === editingEvent.id ? { ...item, ...formData } : item
         );
         saveToStorage(updated);
         toast.success('Event updated successfully!');
       } else {
-        const newEvent = {
+        const res = await adminService.createEvent(formData);
+        const created = res.data || {
           id: `event-${Date.now()}`,
           ...formData
         };
-        await adminService.createEvent(newEvent).catch(() => {});
-        const updated = [newEvent, ...eventsList];
+        const updated = [created, ...eventsList];
         saveToStorage(updated);
         toast.success('New event / trial created!');
       }
@@ -72,7 +72,8 @@ export default function AdminEvents() {
       setEditingEvent(null);
       resetForm();
     } catch (err) {
-      toast.error('Failed to save event');
+      const msg = err.response?.data?.message || err.message || 'Failed to save event';
+      toast.error(msg);
     }
   };
 
@@ -89,16 +90,16 @@ export default function AdminEvents() {
     }
   };
 
-  const openEdit = (event) => {
+    const openEdit = (event) => {
     setEditingEvent(event);
     setFormData({
       title: event.title || '',
       date: event.date ? event.date.substring(0, 10) : '',
-      time: event.time || '04:00 PM',
-      location: event.location || '',
-      type: event.type || 'Trial',
+      time: event.time ? event.time.substring(0, 5) : '16:00',
       description: event.description || '',
-      registrationOpen: event.registrationOpen !== false
+      venue: event.venue || event.location || '',
+      image: event.image || '',
+      status: event.status || 'UPCOMING'
     });
     setIsModalOpen(true);
   };
@@ -106,18 +107,18 @@ export default function AdminEvents() {
   const resetForm = () => {
     setFormData({
       title: '',
-      date: new Date().toISOString().substring(0, 10),
-      time: '04:00 PM',
-      location: 'MUJ Outdoor Volleyball Complex',
-      type: 'Trial',
       description: '',
-      registrationOpen: true
+      date: new Date().toISOString().substring(0, 10),
+      time: '16:00',
+      venue: 'MUJ Outdoor Volleyball Complex',
+      image: '',
+      status: 'UPCOMING'
     });
   };
 
   const filteredEvents = eventsList.filter((item) =>
     item.title.toLowerCase().includes(search.toLowerCase()) ||
-    (item.location && item.location.toLowerCase().includes(search.toLowerCase()))
+    ((item.venue || item.location || '').toLowerCase().includes(search.toLowerCase()))
   );
 
   return (
@@ -172,10 +173,10 @@ export default function AdminEvents() {
               <div>
                 <div className="flex items-center justify-between text-xs mb-3">
                   <span className="px-2.5 py-0.5 rounded-full bg-indigo-600/20 text-indigo-400 font-bold border border-indigo-500/20 text-[10px] uppercase tracking-wider">
-                    {item.type || 'Event'}
+                    {item.status || 'UPCOMING'}
                   </span>
                   <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${item.registrationOpen !== false ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
-                    {item.registrationOpen !== false ? 'Registration Open' : 'Closed'}
+                    {item.status === 'CANCELLED' ? 'Cancelled' : item.status === 'PAST' ? 'Past' : 'Upcoming'}
                   </span>
                 </div>
 
@@ -192,7 +193,7 @@ export default function AdminEvents() {
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin size={14} className="text-indigo-400" />
-                    <span className="truncate">{item.location}</span>
+                    <span className="truncate">{item.venue || item.location}</span>
                   </div>
                 </div>
 
@@ -256,51 +257,49 @@ export default function AdminEvents() {
                     required
                   />
                 </div>
-                <div>
-                  <label className="font-semibold block mb-1">Time</label>
+                                <div>
+                  <label className="font-semibold block mb-1">Time *</label>
                   <input
-                    type="text"
+                    type="time"
                     value={formData.time}
                     onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                    placeholder="04:00 PM"
                     className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                    required
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-semibold block mb-1">Event Category</label>
+                                    <label className="font-semibold block mb-1">Event Status</label>
                   <select
-                    value={formData.type}
-                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                     className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
                   >
-                    <option value="Trial">Trial / Selection</option>
-                    <option value="Tournament">Tournament</option>
-                    <option value="Workshop">Workshop</option>
-                    <option value="Training">Training Camp</option>
+                    <option value="UPCOMING">UPCOMING</option>
+                    <option value="PAST">PAST</option>
+                    <option value="CANCELLED">CANCELLED</option>
                   </select>
                 </div>
                 <div>
-                  <label className="font-semibold block mb-1">Registration Status</label>
-                  <select
-                    value={formData.registrationOpen}
-                    onChange={(e) => setFormData({ ...formData, registrationOpen: e.target.value === 'true' })}
+                                    <label className="font-semibold block mb-1">Image URL</label>
+                  <input
+                    type="text"
+                    value={formData.image}
+                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                    placeholder="https://example.com/images/event.jpg"
                     className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
-                  >
-                    <option value="true">Open</option>
-                    <option value="false">Closed</option>
-                  </select>
+                  />
                 </div>
               </div>
 
               <div>
-                <label className="font-semibold block mb-1">Location *</label>
+                                <label className="font-semibold block mb-1">Venue *</label>
                 <input
                   type="text"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  value={formData.venue}
+                  onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
                   placeholder="e.g. MUJ Sports Complex Court 1"
                   className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
                   required

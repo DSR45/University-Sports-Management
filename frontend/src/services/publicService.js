@@ -1,53 +1,47 @@
 import api from './axiosConfig';
 
+const unwrapList = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.content)) return payload.content;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.items)) return payload.items;
+  if (Array.isArray(payload?.results)) return payload.results;
+  return [];
+};
+
+const unwrapObject = (payload) => {
+  if (payload?.data && !Array.isArray(payload.data)) return payload.data;
+  return payload || {};
+};
+
+const getList = async (endpoint) => {
+  const response = await api.get(endpoint);
+  return unwrapList(response.data);
+};
+
+const getObject = async (endpoint) => {
+  const response = await api.get(endpoint);
+  return unwrapObject(response.data);
+};
+
 export const publicService = {
-  getPlayers: async () => {
-    const response = await api.get('/public/team');
-    return response.data;
-  },
+  getPlayers: () => getList('/public/team'),
 
-  getMatches: async () => {
-    const response = await api.get('/public/matches');
-    return response.data;
-  },
+  getMatches: () => getList('/public/matches'),
 
-  getLatestResult: async () => {
-    const response = await api.get('/public/matches/latest-result');
-    return response.data;
-  },
+  getLatestResult: () => getObject('/public/matches/latest-result'),
 
-  getNews: async () => {
-    const response = await api.get('/public/news');
-    return response.data;
-  },
+  getNews: () => getList('/public/news'),
 
-  getNewsBySlug: async (slug) => {
-    const response = await api.get(`/public/news/${slug}`);
-    return response.data;
-  },
+  getNewsBySlug: (slug) => getObject(`/public/news/${slug}`),
 
-  getAchievements: async () => {
-    const response = await api.get('/public/achievements');
-    return response.data;
-  },
+  getAchievements: () => getList('/public/achievements'),
 
-  getEvents: async () => {
-    const response = await api.get('/public/events');
-    return response.data;
-  },
+  getEvents: () => getList('/public/events'),
 
-  getGallery: async () => {
-    const response = await api.get('/public/gallery');
-    return response.data;
-  },
+  getGallery: () => getList('/public/gallery'),
 
-  getVideos: async () => {
-    const response = await api.get('/public/videos');
-    return response.data;
-  },
+  getVideos: () => getList('/public/videos'),
 
-  getTeamInfo: async () => {
-    const response = await api.get('/public/team-info');
-    return response.data;
-  }
+  getTeamInfo: () => getObject('/public/team-info')
 };
