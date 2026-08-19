@@ -60,12 +60,13 @@ export const AuthProvider = ({ children }) => {
       authService.logout();
       setUser(null);
       toast.info('Logged out successfully');
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout error:', error);
       // Force logout even if error occurs
       localStorage.clear();
       setUser(null);
-      window.location.href = '/login';
+      window.location.href = '/';
     }
   };
 

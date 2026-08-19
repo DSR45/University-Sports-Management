@@ -17,6 +17,8 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import Players from "./pages/admin/Players";
 import PlayerReview from "./pages/admin/PlayerReview";
 import AdminAnnouncements from "./pages/admin/Announcements";
+import AdminPages from "./pages/admin/AdminPages";
+import AdminNews from "./pages/admin/AdminNews";
 import NotFound from "./pages/NotFound";
 import LandingPage from "./pages/public/LandingPage";
 import TeamPage from "./pages/public/TeamPage";
@@ -90,10 +92,20 @@ function App() {
           </ProtectedRoute>
         } />
 
-        {/* Admin Routes */}
+                {/* Admin Routes */}
         <Route path="/admin" element={
           <ProtectedRoute adminOnly>
             <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/pages" element={
+          <ProtectedRoute adminOnly>
+            <AdminPages />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/news" element={
+          <ProtectedRoute adminOnly>
+            <AdminNews />
           </ProtectedRoute>
         } />
         <Route path="/admin/players" element={
@@ -120,3 +132,4 @@ function App() {
 }
 
 export default App;
+

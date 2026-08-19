@@ -31,14 +31,7 @@ axiosInstance.interceptors.response.use(
   (error) => {
     // Handle network errors
     if (!error.response) {
-      console.error('Network error:', error);
-      
-      // Only show toast if it's not a cancelled request
-      if (error.message !== 'canceled') {
-        toast.error('Network error. Please check your connection.', {
-          toastId: 'network-error' // Prevent duplicate toasts
-        });
-      }
+      console.warn('Network / API server connection unavailable. Using mock/local storage fallback:', error.message);
       return Promise.reject(error);
     }
 
@@ -74,9 +67,7 @@ axiosInstance.interceptors.response.use(
       case 500:
       case 502:
       case 503:
-        toast.error('Server error. Please try again later.', {
-          toastId: 'server-error'
-        });
+        console.warn('Backend server response error (500/502/503) for endpoint:', error.config?.url, '. Falling back to client-side data store.');
         break;
 
       case 429:

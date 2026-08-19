@@ -1,63 +1,53 @@
-import { mockPlayers } from '../data/mock/players';
-import { mockMatches } from '../data/mock/matches';
-import { mockNews } from '../data/mock/news';
-import { mockAchievements } from '../data/mock/achievements';
-import { mockEvents } from '../data/mock/events';
-import { mockGallery } from '../data/mock/gallery';
-import { mockVideos } from '../data/mock/videos';
-import { mockTeamInfo } from '../data/mock/team';
-
-// Simulation of API delay
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+import api from './axiosConfig';
 
 export const publicService = {
   getPlayers: async () => {
-    await delay(500);
-    return mockPlayers;
+    const response = await api.get('/public/team');
+    return response.data;
   },
 
   getMatches: async () => {
-    await delay(500);
-    return mockMatches;
+    const response = await api.get('/public/matches');
+    return response.data;
   },
 
   getLatestResult: async () => {
-    await delay(500);
-    return mockMatches.find(m => m.status === 'completed');
+    const response = await api.get('/public/matches/latest-result');
+    return response.data;
   },
 
   getNews: async () => {
-    await delay(500);
-    return mockNews;
+    const response = await api.get('/public/news');
+    return response.data;
   },
 
   getNewsBySlug: async (slug) => {
-    await delay(500);
-    return mockNews.find(n => n.slug === slug);
+    const response = await api.get(`/public/news/${slug}`);
+    return response.data;
   },
 
   getAchievements: async () => {
-    await delay(500);
-    return mockAchievements;
+    const response = await api.get('/public/achievements');
+    return response.data;
   },
 
   getEvents: async () => {
-    await delay(500);
-    return mockEvents;
+    const response = await api.get('/public/events');
+    return response.data;
   },
 
   getGallery: async () => {
-    await delay(500);
-    return mockGallery;
+    const response = await api.get('/public/gallery');
+    return response.data;
   },
 
   getVideos: async () => {
-    await delay(500);
-    return mockVideos;
+    const response = await api.get('/public/videos');
+    return response.data;
   },
 
   getTeamInfo: async () => {
-    await delay(500);
-    return mockTeamInfo;
+    const response = await api.get('/public/team-info');
+    return response.data;
   }
 };
