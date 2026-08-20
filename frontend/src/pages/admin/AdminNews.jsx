@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Newspaper, Plus, Search, Edit3, Trash2, Calendar, User, X, Check } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { adminService } from '../../services/adminService';
-import { mockNews } from '../../data/mock/news';
+
 
 const toLocalDateTime = (dateValue) => {
   if (!dateValue) return new Date().toISOString().slice(0, 19);

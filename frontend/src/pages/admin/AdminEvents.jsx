@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Plus, Search, Edit3, Trash2, MapPin, Clock, X, Check } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { adminService } from '../../services/adminService';
-import { mockEvents } from '../../data/mock/events';
 
 export default function AdminEvents() {
   const [eventsList, setEventsList] = useState([]);

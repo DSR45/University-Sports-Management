@@ -33,13 +33,27 @@ export const authService = {
       return response.data;
     } catch (err) {
       const isAdmin = email.toLowerCase().includes('admin');
+      
+      // Check if there's already a stored user for THIS email (e.g., from registration)
+      const storedUser = authService.getCurrentUser();
+      const existingUserForThisEmail = storedUser && storedUser.email === email ? storedUser : null;
+
+      // Derive a name from the email prefix if no stored user exists
+      // e.g. "rahul.sharma@muj.edu" -> "Rahul Sharma"
+      const nameFromEmail = email
+        .split('@')[0]
+        .replace(/[._-]+/g, ' ')
+        .replace(/\b\w/g, (c) => c.toUpperCase())
+        .trim();
+
       const mockUser = {
         token: `mock-jwt-token-${Date.now()}`,
-        id: isAdmin ? 'admin-1' : 'player-1',
-        name: isAdmin ? 'Admin Manager' : 'Rahul Sharma',
+        id: isAdmin ? 'admin-1' : existingUserForThisEmail?.id || `player-${Date.now()}`,
+        name: isAdmin ? 'Admin Manager' : existingUserForThisEmail?.name || nameFromEmail || 'Player',
         email: email,
-        role: isAdmin ? 'ADMIN' : 'PLAYER'
+        role: isAdmin ? 'ADMIN' : existingUserForThisEmail?.role || 'PLAYER'
       };
+
       localStorage.setItem('token', mockUser.token);
       localStorage.setItem('user', JSON.stringify(mockUser));
       return mockUser;
