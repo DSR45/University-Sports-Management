@@ -1,152 +1,179 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Plus, Search, Edit3, Trash2, MapPin, Clock, X, Check } from 'lucide-react';
+import { Trophy, Plus, Search, Edit3, Trash2, MapPin, Calendar, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { adminService } from '../../services/adminService';
 
-export default function AdminEvents() {
-  const [eventsList, setEventsList] = useState([]);
+export default function AdminMatches() {
+  const [matchesList, setMatchesList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingEvent, setEditingEvent] = useState(null);
+  const [editingMatch, setEditingMatch] = useState(null);
 
-    const [formData, setFormData] = useState({
-    title: '',
-    description: '',
+      const [formData, setFormData] = useState({
+    opponent: '',
+    tournamentName: 'Inter-University Championship',
+    ourScore: 3,
+    opponentScore: 1,
     date: new Date().toISOString().substring(0, 10),
-    time: '16:00',
-    venue: 'MUJ Outdoor Volleyball Complex',
-    image: '',
-    status: 'UPCOMING'
+    venue: 'MUJ Indoor Sports Complex',
+    status: 'COMPLETED',
+    result: 'WIN',
+    highlights: ''
   });
 
   useEffect(() => {
-    fetchEvents();
+    fetchMatches();
   }, []);
 
-  const fetchEvents = async () => {
+  const fetchMatches = async () => {
     try {
       setLoading(true);
-
-
-
-
-
-
-      const res = await adminService.getEvents();
-            setEventsList(Array.isArray(res.data) ? res.data : []);
-          } catch (err) {
-            const stored = localStorage.getItem('muj_admin_events');
-            setEventsList(stored ? JSON.parse(stored) : []);
-          } finally {
+      const res = await adminService.getMatches();
+      setMatchesList(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      const stored = localStorage.getItem('muj_admin_matches');
+      setMatchesList(stored ? JSON.parse(stored) : []);
+    } finally {
       setLoading(false);
     }
   };
 
   const saveToStorage = (updated) => {
-    setEventsList(updated);
-    localStorage.setItem('muj_admin_events', JSON.stringify(updated));
+    setMatchesList(updated);
+    localStorage.setItem('muj_admin_matches', JSON.stringify(updated));
   };
 
-    const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.title || !formData.description || !formData.date || !formData.time || !formData.venue || !formData.status) {
-      toast.error('Title, description, date, time, venue, and status are required');
-      return;
-    }
-
-    try {
-      if (editingEvent) {
-        await adminService.updateEvent(editingEvent.id, formData);
-        const updated = eventsList.map((item) =>
-          item.id === editingEvent.id ? { ...item, ...formData } : item
-        );
-        saveToStorage(updated);
-        toast.success('Event updated successfully!');
-      } else {
-        const res = await adminService.createEvent(formData);
-        const created = res.data || {
-          id: `event-${Date.now()}`,
-          ...formData
-        };
-        const updated = [created, ...eventsList];
-        saveToStorage(updated);
-        toast.success('New event / trial created!');
+  const handleSubmit = async (e) => {
+      e.preventDefault();
+      if (!formData.opponent || !formData.date || !formData.venue) {
+        toast.error('Opponent name, date, and venue are required');
+        return;
       }
-      setIsModalOpen(false);
-      setEditingEvent(null);
-      resetForm();
-    } catch (err) {
-      const msg = err.response?.data?.message || err.message || 'Failed to save event';
-      toast.error(msg);
-    }
-  };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this event?')) {
+      const targetId = editingMatch ? editingMatch.id : `match-${Date.now()}`;
+      const formattedScore = `${formData.ourScore ?? 0} - ${formData.opponentScore ?? 0}`;
+      const statusVal = formData.result === 'UPCOMING' ? 'UPCOMING' : 'COMPLETED';
+
+      const matchObj = {
+        id: targetId,
+        opponent: formData.opponent,
+        tournamentName: formData.tournamentName || 'Inter-University Championship',
+        competition: formData.tournamentName || 'Inter-University Championship',
+        ourScore: Number(formData.ourScore ?? 0),
+        opponentScore: Number(formData.opponentScore ?? 0),
+        score: formattedScore,
+        result: formattedScore,
+        outcome: formData.result,
+        date: formData.date,
+        time: '16:00',
+        venue: formData.venue,
+        status: statusVal,
+        highlights: formData.highlights,
+        sets: formData.highlights || formattedScore
+      };
+
       try {
-        await adminService.deleteEvent(id).catch(() => {});
-        const updated = eventsList.filter((e) => e.id !== id);
-        saveToStorage(updated);
-        toast.success('Event deleted');
+        if (editingMatch) {
+          await adminService.updateMatch(editingMatch.id, matchObj).catch(() => {});
+          const updated = matchesList.map((item) =>
+            item.id === editingMatch.id ? matchObj : item
+          );
+          saveToStorage(updated);
+          toast.success('Match updated successfully!');
+        } else {
+          await adminService.createMatch(matchObj).catch(() => {});
+          const updated = [matchObj, ...matchesList];
+          saveToStorage(updated);
+          toast.success('New match added!');
+        }
+        setIsModalOpen(false);
+        setEditingMatch(null);
+        resetForm();
       } catch (err) {
-        toast.error('Failed to delete event');
+        const msg = err.response?.data?.message || err.message || 'Failed to save match';
+        toast.error(msg);
+      }
+    };
+
+    const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this match record?')) {
+      try {
+        await adminService.deleteMatch(id).catch(() => {});
+        const updated = matchesList.filter((m) => m.id !== id);
+        saveToStorage(updated);
+        toast.success('Match record deleted');
+      } catch (err) {
+        toast.error('Failed to delete match');
       }
     }
   };
 
-    const openEdit = (event) => {
-    setEditingEvent(event);
-    setFormData({
-      title: event.title || '',
-      date: event.date ? event.date.substring(0, 10) : '',
-      time: event.time ? event.time.substring(0, 5) : '16:00',
-      description: event.description || '',
-      venue: event.venue || event.location || '',
-      image: event.image || '',
-      status: event.status || 'UPCOMING'
-    });
-    setIsModalOpen(true);
-  };
+  const openEdit = (match) => {
+      setEditingMatch(match);
+      let our = match.ourScore;
+      let opp = match.opponentScore;
+      if ((our === undefined || opp === undefined) && match.result && String(match.result).includes('-')) {
+        const parts = String(match.result).split('-');
+        our = parseInt(parts[0], 10) || 0;
+        opp = parseInt(parts[1], 10) || 0;
+      }
+
+      setFormData({
+        opponent: match.opponent || '',
+        tournamentName: match.tournamentName || match.competition || 'Inter-University Championship',
+        ourScore: our ?? 3,
+        opponentScore: opp ?? 0,
+        date: match.date ? match.date.substring(0, 10) : new Date().toISOString().substring(0, 10),
+        venue: match.venue || match.location || '',
+        status: match.status || 'COMPLETED',
+        result: match.outcome || (our > opp ? 'WIN' : our < opp ? 'LOSS' : 'DRAW'),
+        highlights: match.highlights || match.sets || match.description || ''
+      });
+      setIsModalOpen(true);
+    };
 
   const resetForm = () => {
     setFormData({
-      title: '',
-      description: '',
+      opponent: '',
+      tournamentName: 'Inter-University Championship',
+      ourScore: 3,
+      opponentScore: 1,
       date: new Date().toISOString().substring(0, 10),
-      time: '16:00',
-      venue: 'MUJ Outdoor Volleyball Complex',
-      image: '',
-      status: 'UPCOMING'
+      venue: 'MUJ Indoor Sports Complex',
+      status: 'COMPLETED',
+      result: 'WIN',
+      highlights: ''
     });
   };
 
-  const filteredEvents = eventsList.filter((item) =>
-    item.title.toLowerCase().includes(search.toLowerCase()) ||
-    ((item.venue || item.location || '').toLowerCase().includes(search.toLowerCase()))
+  const filteredMatches = matchesList.filter((item) =>
+    (item.opponent || '').toLowerCase().includes(search.toLowerCase()) ||
+    (item.tournamentName || '').toLowerCase().includes(search.toLowerCase()) ||
+    (item.venue || '').toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="space-y-6">
       <div className="hero-row flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <span className="eyebrow">EVENT & TRIALS MANAGEMENT</span>
-          <h1 className="text-2xl font-extrabold text-white">Events & Trials</h1>
+          <span className="eyebrow">MATCH & SCORES MANAGEMENT</span>
+          <h1 className="text-2xl font-extrabold text-white">Matches & Scores</h1>
           <p className="muted text-xs">
-            Schedule open trials, training camps, and inter-university meets.
+            Manage team fixtures, tournament match results, and set scores.
           </p>
         </div>
 
         <button
           className="primary flex items-center space-x-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition shadow-lg shadow-indigo-600/20"
           onClick={() => {
-            setEditingEvent(null);
+            setEditingMatch(null);
             resetForm();
             setIsModalOpen(true);
           }}
         >
           <Plus size={16} />
-          <span>Add Event / Trial</span>
+          <span>Create Match & Score</span>
         </button>
       </div>
 
@@ -155,22 +182,22 @@ export default function AdminEvents() {
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search event title or venue..."
+            placeholder="Search opponent, tournament, venue..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl pl-9 pr-3 py-2 focus:outline-none focus:border-indigo-500"
           />
         </div>
         <div className="text-xs text-slate-400">
-          Total Events: <strong className="text-white">{filteredEvents.length}</strong>
+          Total Matches: <strong className="text-white">{filteredMatches.length}</strong>
         </div>
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-slate-400 text-xs">Loading events...</div>
+        <div className="text-center py-12 text-slate-400 text-xs">Loading matches...</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredEvents.map((item) => (
+          {filteredMatches.map((item) => (
             <div
               key={item.id}
               className="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-xl flex flex-col justify-between transition hover:border-indigo-500/30"
@@ -178,36 +205,42 @@ export default function AdminEvents() {
               <div>
                 <div className="flex items-center justify-between text-xs mb-3">
                   <span className="px-2.5 py-0.5 rounded-full bg-indigo-600/20 text-indigo-400 font-bold border border-indigo-500/20 text-[10px] uppercase tracking-wider">
-                    {item.status || 'UPCOMING'}
+                    {item.tournamentName || 'Tournament'}
                   </span>
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${item.registrationOpen !== false ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
-                    {item.status === 'CANCELLED' ? 'Cancelled' : item.status === 'PAST' ? 'Past' : 'Upcoming'}
+                  <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${item.result === 'WIN' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : item.result === 'LOSS' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'}`}>
+                    {item.result || item.status}
                   </span>
                 </div>
 
-                <h3 className="text-base font-bold text-white mb-3">{item.title}</h3>
+                <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 mb-3 flex items-center justify-between">
+                  <div className="text-center flex-1">
+                    <div className="text-[11px] font-bold text-slate-300">MUJ VOLLEYBALL</div>
+                    <div className="text-xl font-black text-indigo-400">{item.ourScore ?? 0}</div>
+                  </div>
+                  <div className="text-xs font-bold text-slate-500 px-2">VS</div>
+                  <div className="text-center flex-1">
+                    <div className="text-[11px] font-bold text-slate-300 truncate">{item.opponent || 'Opponent'}</div>
+                    <div className="text-xl font-black text-rose-400">{item.opponentScore ?? 0}</div>
+                  </div>
+                </div>
 
-                <div className="space-y-1.5 text-xs text-slate-400 mb-4 font-medium">
+                <div className="space-y-1.5 text-xs text-slate-400 mb-3 font-medium">
                   <div className="flex items-center gap-2">
                     <Calendar size={14} className="text-indigo-400" />
                     <span>{item.date ? item.date.substring(0, 10) : 'TBA'}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Clock size={14} className="text-indigo-400" />
-                    <span>{item.time || 'All Day'}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
                     <MapPin size={14} className="text-indigo-400" />
-                    <span className="truncate">{item.venue || item.location}</span>
+                    <span className="truncate">{item.venue || 'MUJ Sports Ground'}</span>
                   </div>
                 </div>
 
-                {item.description && (
-                  <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-4">{item.description}</p>
+                {item.highlights && (
+                  <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-3">{item.highlights}</p>
                 )}
               </div>
 
-              <div className="pt-4 border-t border-slate-800 flex items-center justify-end space-x-2">
+              <div className="pt-3 border-t border-slate-800 flex items-center justify-end space-x-2">
                 <button
                   onClick={() => openEdit(item)}
                   className="px-3 py-1.5 rounded-xl bg-indigo-600/15 hover:bg-indigo-600 text-indigo-400 hover:text-white text-xs font-semibold transition flex items-center gap-1"
@@ -231,7 +264,7 @@ export default function AdminEvents() {
           <div className="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-base font-bold text-white">
-                {editingEvent ? 'Edit Event / Trial' : 'Create New Event'}
+                {editingMatch ? 'Edit Match & Score' : 'Create Match & Score'}
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white">
                 <X size={18} />
@@ -240,12 +273,12 @@ export default function AdminEvents() {
 
             <form onSubmit={handleSubmit} className="space-y-3 text-xs text-slate-200">
               <div>
-                <label className="font-semibold block mb-1">Title *</label>
+                <label className="font-semibold block mb-1">Opponent Team Name *</label>
                 <input
                   type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="e.g. Squad Open Trials 2025"
+                  value={formData.opponent}
+                  onChange={(e) => setFormData({ ...formData, opponent: e.target.value })}
+                  placeholder="e.g. LNMIIT Jaipur"
                   className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
                   required
                 />
@@ -253,7 +286,17 @@ export default function AdminEvents() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-semibold block mb-1">Date *</label>
+                  <label className="font-semibold block mb-1">Tournament / League</label>
+                  <input
+                    type="text"
+                    value={formData.tournamentName}
+                    onChange={(e) => setFormData({ ...formData, tournamentName: e.target.value })}
+                    placeholder="e.g. West Zone Inter-Uni 2025"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="font-semibold block mb-1">Match Date *</label>
                   <input
                     type="date"
                     value={formData.date}
@@ -262,62 +305,67 @@ export default function AdminEvents() {
                     required
                   />
                 </div>
-                                <div>
-                  <label className="font-semibold block mb-1">Time *</label>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                <div>
+                  <label className="font-semibold block mb-1 text-indigo-400">MUJ Score (Sets)</label>
                   <input
-                    type="time"
-                    value={formData.time}
-                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
-                    required
+                    type="number"
+                    min="0"
+                    max="10"
+                    value={formData.ourScore}
+                    onChange={(e) => setFormData({ ...formData, ourScore: parseInt(e.target.value) || 0 })}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="font-semibold block mb-1 text-rose-400">Opponent Score (Sets)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="10"
+                    value={formData.opponentScore}
+                    onChange={(e) => setFormData({ ...formData, opponentScore: parseInt(e.target.value) || 0 })}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                                    <label className="font-semibold block mb-1">Event Status</label>
+                  <label className="font-semibold block mb-1">Match Result</label>
                   <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                    value={formData.result}
+                    onChange={(e) => setFormData({ ...formData, result: e.target.value })}
                     className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
                   >
+                    <option value="WIN">WIN</option>
+                    <option value="LOSS">LOSS</option>
+                    <option value="DRAW">DRAW</option>
                     <option value="UPCOMING">UPCOMING</option>
-                    <option value="PAST">PAST</option>
-                    <option value="CANCELLED">CANCELLED</option>
                   </select>
                 </div>
                 <div>
-                                    <label className="font-semibold block mb-1">Image URL</label>
+                  <label className="font-semibold block mb-1">Venue *</label>
                   <input
                     type="text"
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    placeholder="https://example.com/images/event.jpg"
+                    value={formData.venue}
+                    onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
+                    placeholder="e.g. MUJ Sports Complex Court 1"
                     className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                    required
                   />
                 </div>
               </div>
 
               <div>
-                                <label className="font-semibold block mb-1">Venue *</label>
-                <input
-                  type="text"
-                  value={formData.venue}
-                  onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
-                  placeholder="e.g. MUJ Sports Complex Court 1"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold block mb-1">Description</label>
+                <label className="font-semibold block mb-1">Match Highlights / Notes</label>
                 <textarea
                   rows={3}
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Event details, guidelines, and requirements..."
+                  value={formData.highlights}
+                  onChange={(e) => setFormData({ ...formData, highlights: e.target.value })}
+                  placeholder="Match recap, key set scores, standout performances..."
                   className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
                 />
               </div>
@@ -334,7 +382,7 @@ export default function AdminEvents() {
                   type="submit"
                   className="px-5 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold shadow-lg"
                 >
-                  Save Event
+                  Save Match & Score
                 </button>
               </div>
             </form>

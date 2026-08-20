@@ -42,28 +42,30 @@ export default function AdminEvents() {
     localStorage.setItem('muj_admin_events', JSON.stringify(updated));
   };
 
-    const handleSubmit = async (e) => {
+      const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title || !formData.description || !formData.date || !formData.time || !formData.venue || !formData.status) {
       toast.error('Title, description, date, time, venue, and status are required');
       return;
     }
 
+    const targetId = editingEvent ? editingEvent.id : `event-${Date.now()}`;
+    const eventObj = {
+      id: targetId,
+      ...formData
+    };
+
     try {
       if (editingEvent) {
-        await adminService.updateEvent(editingEvent.id, formData);
+        await adminService.updateEvent(editingEvent.id, eventObj).catch(() => {});
         const updated = eventsList.map((item) =>
-          item.id === editingEvent.id ? { ...item, ...formData } : item
+          item.id === editingEvent.id ? eventObj : item
         );
         saveToStorage(updated);
         toast.success('Event updated successfully!');
       } else {
-        const res = await adminService.createEvent(formData);
-        const created = res.data || {
-          id: `event-${Date.now()}`,
-          ...formData
-        };
-        const updated = [created, ...eventsList];
+        await adminService.createEvent(eventObj).catch(() => {});
+        const updated = [eventObj, ...eventsList];
         saveToStorage(updated);
         toast.success('New event / trial created!');
       }

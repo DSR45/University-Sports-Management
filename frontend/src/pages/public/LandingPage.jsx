@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { ArrowRight, ChevronRight, ShieldCheck, Trophy } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { publicService } from '../../services/publicService';
+import { useAuth } from '../../context/AuthContext';
 
 export default function LandingPage() {
+  const { isAuthenticated } = useAuth();
   const [data, setData] = useState({
     players: [],
     news: [],
@@ -58,36 +60,46 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {data.result && (
-        <section className="result-section">
-          <div className="container">
-            <div className="section-header">
-              <span className="eyebrow">LATEST RESULT</span>
-            </div>
-            <div className="result-card card">
-              <div className="result-main">
-                <div className="team-score">
-                  <span className="team-name">MUJ</span>
-                  <span className="score">{String(data.result.result || '').split('-')[0]}</span>
-                </div>
-                <div className="divider">—</div>
-                <div className="team-score">
-                  <span className="score">{String(data.result.result || '').split('-')[1]}</span>
-                  <span className="team-name">{data.result.opponent}</span>
-                </div>
+            {data.result && (() => {
+        let ourScore = data.result.ourScore;
+        let oppScore = data.result.opponentScore;
+        if ((ourScore === undefined || oppScore === undefined) && data.result.result && String(data.result.result).includes('-')) {
+          const parts = String(data.result.result).split('-');
+          ourScore = parseInt(parts[0], 10) || 0;
+          oppScore = parseInt(parts[1], 10) || 0;
+        }
+
+        return (
+          <section className="result-section">
+            <div className="container">
+              <div className="section-header">
+                <span className="eyebrow">LATEST RESULT</span>
               </div>
-              <div className="result-meta">
-                <span>{data.result.competition}</span>
-                <span>{new Date(data.result.date).toLocaleDateString()}</span>
+              <div className="result-card card">
+                <div className="result-main">
+                  <div className="team-score">
+                    <span className="team-name">MUJ</span>
+                    <span className="score">{ourScore ?? 0}</span>
+                  </div>
+                  <div className="divider">—</div>
+                  <div className="team-score">
+                    <span className="score">{oppScore ?? 0}</span>
+                    <span className="team-name">{data.result.opponent}</span>
+                  </div>
+                </div>
+                <div className="result-meta">
+                  <span>{data.result.tournamentName || data.result.competition || 'Inter-University Tournament'}</span>
+                  <span>{data.result.date ? new Date(data.result.date).toLocaleDateString() : ''}</span>
+                </div>
+                <Link to="/matches" className="section-action-link">
+                  <span>VIEW ALL MATCHES</span>
+                  <ChevronRight size={16} />
+                </Link>
               </div>
-              <Link to="/matches" className="section-action-link">
-                <span>VIEW ALL MATCHES</span>
-                <ChevronRight size={16} />
-              </Link>
             </div>
-          </div>
-        </section>
-      )}
+          </section>
+        );
+      })()}
 
       <section className="preview-section">
         <div className="container">
@@ -187,18 +199,20 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="final-cta">
-        <div className="container">
-          <div className="cta-panel card">
-            <div className="cta-icon">
-              <Trophy size={20} />
+            {!isAuthenticated && (
+        <section className="final-cta">
+          <div className="container">
+            <div className="cta-panel card">
+              <div className="cta-icon">
+                <Trophy size={20} />
+              </div>
+              <h2>READY TO REPRESENT MUJ?</h2>
+              <p>Be part of the MUJ Volleyball journey.</p>
+              <button onClick={() => navigate('/join')} className="cta-button">JOIN THE TEAM</button>
             </div>
-            <h2>READY TO REPRESENT MUJ?</h2>
-            <p>Be part of the MUJ Volleyball journey.</p>
-            <button onClick={() => navigate('/join')} className="cta-button">JOIN THE TEAM</button>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }

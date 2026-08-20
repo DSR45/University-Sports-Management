@@ -1,8 +1,10 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from './layout/Sidebar';
-import Topbar from './layout/Topbar';
+import PublicNavbar from './public/PublicNavbar';
+import PublicFooter from './public/PublicFooter';
 
 export default function ProtectedRoute({ children, adminOnly = false }) {
   const { isAuthenticated, isAdmin, loading } = useAuth();
@@ -35,15 +37,21 @@ export default function ProtectedRoute({ children, adminOnly = false }) {
   }
 
   return (
-    <div className="app">
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-      {isSidebarOpen && <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)} />}
-      <div className="main">
-        <Topbar onMenuClick={() => setIsSidebarOpen((open) => !open)} />
-        <div className="content">
+    <div className="public-layout">
+      {createPortal(
+        <>
+          <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+          {isSidebarOpen && <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)} />}
+        </>,
+        document.body
+      )}
+      <PublicNavbar onMenuClick={() => setIsSidebarOpen((open) => !open)} />
+      <main className="public-main">
+        <div className="container" style={{ padding: '30px 20px' }}>
           {children}
         </div>
-      </div>
+      </main>
+      <PublicFooter />
     </div>
   );
 }

@@ -1,3 +1,3 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://flex-adam-tourism-spectacular.trycloudflare.com/api";
 
 export default API_BASE_URL;

@@ -46,14 +46,7 @@ export default function Sidebar({ isOpen = false, onClose }) {
     { path: '/admin/players', label: 'Players Database', icon: Users }
   ];
 
-  const publicNavItems = [
-    { path: '/', label: 'Public Home', icon: Home },
-    { path: '/team', label: 'Team Roster', icon: Users },
-    { path: '/matches', label: 'Match Center', icon: Trophy },
-    { path: '/news', label: 'Latest News', icon: Newspaper },
-  ];
-
-  const navItems = isAdmin ? adminNavItems : playerNavItems;
+    const navItems = isAdmin ? adminNavItems : playerNavItems;
 
   return (
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
@@ -68,21 +61,8 @@ export default function Sidebar({ isOpen = false, onClose }) {
       </div>
 
       <nav>
-        <div className="nav-label">WORKSTATION</div>
+        <div className="nav-label">MENU</div>
         {navItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
-            onClick={onClose}
-          >
-            <item.icon size={18} />
-            <span>{item.label}</span>
-          </Link>
-        ))}
-
-        <div className="nav-label" style={{ marginTop: '20px' }}>PUBLIC WEBSITE</div>
-        {publicNavItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}

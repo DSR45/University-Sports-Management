@@ -60,12 +60,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Private team home */}
-        <Route path="/home" element={
-          <ProtectedRoute>
-            <HomePage />
-          </ProtectedRoute>
-        } />
+                {/* Team Page redirect/alias */}
+        <Route path="/home" element={<Navigate to="/team" replace />} />
 
         {/* Player Routes */}
         <Route path="/player" element={

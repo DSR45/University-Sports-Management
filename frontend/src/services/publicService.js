@@ -1,4 +1,12 @@
 import api from './axiosConfig';
+import { mockNews } from '../data/mock/news';
+import { mockEvents } from '../data/mock/events';
+import { mockMatches } from '../data/mock/matches';
+import { mockAchievements } from '../data/mock/achievements';
+import { mockGallery } from '../data/mock/gallery';
+import { mockVideos } from '../data/mock/videos';
+import { mockPlayers } from '../data/mock/players';
+import { mockTeamInfo } from '../data/mock/team';
 
 const unwrapList = (payload) => {
   if (Array.isArray(payload)) return payload;
@@ -14,34 +22,106 @@ const unwrapObject = (payload) => {
   return payload || {};
 };
 
-const getList = async (endpoint) => {
-  const response = await api.get(endpoint);
-  return unwrapList(response.data);
+const safePublicList = async (endpoint, storageKey, defaultData = []) => {
+  try {
+    const response = await api.get(endpoint);
+    const unwrapped = unwrapList(response.data);
+    if (Array.isArray(unwrapped) && unwrapped.length > 0) {
+      return unwrapped;
+    }
+  } catch (err) {
+    // ignore API error and fallback
+  }
+
+  if (storageKey) {
+    const stored = localStorage.getItem(storageKey);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      } catch (e) {
+        // ignore parse error
+      }
+    }
+  }
+
+  return defaultData;
 };
 
-const getObject = async (endpoint) => {
-  const response = await api.get(endpoint);
-  return unwrapObject(response.data);
+const safePublicObject = async (endpoint, storageKey, defaultData = {}) => {
+  try {
+    const response = await api.get(endpoint);
+    const unwrapped = unwrapObject(response.data);
+    if (unwrapped && Object.keys(unwrapped).length > 0) {
+      return unwrapped;
+    }
+  } catch (err) {
+    // ignore API error and fallback
+  }
+
+  if (storageKey) {
+    const stored = localStorage.getItem(storageKey);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed) return parsed;
+      } catch (e) {
+        // ignore parse error
+      }
+    }
+  }
+
+  return defaultData;
 };
 
 export const publicService = {
-  getPlayers: () => getList('/public/team'),
+  getPlayers: () => safePublicList('/public/team', 'muj_admin_players', mockPlayers),
 
-  getMatches: () => getList('/public/matches'),
+  getMatches: () => safePublicList('/public/matches', 'muj_admin_matches', mockMatches),
 
-  getLatestResult: () => getObject('/public/matches/latest-result'),
+  getLatestResult: async () => {
+    try {
+      const response = await api.get('/public/matches/latest-result');
+      const unwrapped = unwrapObject(response.data);
+      if (unwrapped && (unwrapped.opponent || unwrapped.id)) return unwrapped;
+    } catch (err) {
+      // API call failed, fallback to matches list
+    }
 
-  getNews: () => getList('/public/news'),
+    const matchesList = await publicService.getMatches();
+    const completed = matchesList.filter(
+      (m) =>
+        String(m.status).toUpperCase() === 'COMPLETED' ||
+        m.ourScore !== undefined ||
+        (m.result && String(m.result).includes('-'))
+    );
+    if (completed.length > 0) {
+      return completed[0];
+    }
+    return matchesList[0] || null;
+  },
 
-  getNewsBySlug: (slug) => getObject(`/public/news/${slug}`),
+  getNews: () => safePublicList('/public/news', 'muj_admin_news', mockNews),
 
-  getAchievements: () => getList('/public/achievements'),
+  getNewsBySlug: async (slug) => {
+    try {
+      const response = await api.get(`/public/news/${slug}`);
+      return unwrapObject(response.data);
+    } catch (err) {
+      const newsList = await publicService.getNews();
+      return newsList.find((n) => n.slug === slug || String(n.id) === String(slug)) || newsList[0] || {};
+    }
+  },
 
-  getEvents: () => getList('/public/events'),
+  getAchievements: () => safePublicList('/public/achievements', 'muj_admin_achievements', mockAchievements),
 
-  getGallery: () => getList('/public/gallery'),
+  getEvents: () => safePublicList('/public/events', 'muj_admin_events', mockEvents),
 
-  getVideos: () => getList('/public/videos'),
+  getGallery: () => safePublicList('/public/gallery', 'muj_admin_gallery', mockGallery),
 
-  getTeamInfo: () => getObject('/public/team-info')
+  getVideos: () => safePublicList('/public/videos', 'muj_admin_videos', mockVideos),
+
+  getTeamInfo: () => safePublicObject('/public/team-info', 'muj_admin_team_info', mockTeamInfo)
 };
