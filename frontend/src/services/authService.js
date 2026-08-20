@@ -1,63 +1,24 @@
 import api from './axiosConfig';
 
 export const authService = {
-  register: async (data) => {
-    try {
-      const response = await api.post('/auth/register', data);
-      if (response.data?.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data));
-      }
-      return response.data;
-    } catch (err) {
-      const mockUser = {
-        token: `mock-token-${Date.now()}`,
-        id: `user-${Date.now()}`,
-        name: data.name || 'New Player',
-        email: data.email,
-        role: data.role || 'PLAYER'
-      };
-      localStorage.setItem('token', mockUser.token);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      return mockUser;
+    register: async (data) => {
+    const response = await api.post('/auth/register', data);
+    const userObj = response.data;
+    if (userObj?.token) {
+      localStorage.setItem('token', userObj.token);
+      localStorage.setItem('user', JSON.stringify(userObj));
     }
+    return userObj;
   },
 
   login: async (email, password) => {
-    try {
-      const response = await api.post('/auth/login', { email, password });
-      if (response.data?.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data));
-      }
-      return response.data;
-    } catch (err) {
-      const isAdmin = email.toLowerCase().includes('admin');
-      
-      // Check if there's already a stored user for THIS email (e.g., from registration)
-      const storedUser = authService.getCurrentUser();
-      const existingUserForThisEmail = storedUser && storedUser.email === email ? storedUser : null;
-
-      // Derive a name from the email prefix if no stored user exists
-      // e.g. "rahul.sharma@muj.edu" -> "Rahul Sharma"
-      const nameFromEmail = email
-        .split('@')[0]
-        .replace(/[._-]+/g, ' ')
-        .replace(/\b\w/g, (c) => c.toUpperCase())
-        .trim();
-
-      const mockUser = {
-        token: `mock-jwt-token-${Date.now()}`,
-        id: isAdmin ? 'admin-1' : existingUserForThisEmail?.id || `player-${Date.now()}`,
-        name: isAdmin ? 'Admin Manager' : existingUserForThisEmail?.name || nameFromEmail || 'Player',
-        email: email,
-        role: isAdmin ? 'ADMIN' : existingUserForThisEmail?.role || 'PLAYER'
-      };
-
-      localStorage.setItem('token', mockUser.token);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      return mockUser;
+    const response = await api.post('/auth/login', { email, password });
+    const userObj = response.data;
+    if (userObj?.token) {
+      localStorage.setItem('token', userObj.token);
+      localStorage.setItem('user', JSON.stringify(userObj));
     }
+    return userObj;
   },
 
   logout: () => {

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   CalendarDays,
   Images,
@@ -12,13 +12,41 @@ import {
   Trophy,
   Users,
   X,
-  Home
+  Home,
+  User,
+  LayoutDashboard,
+  LogOut,
+  ChevronDown,
+  SlidersHorizontal
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import Sidebar from '../layout/Sidebar';
 
 export default function PublicNavbar() {
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const userMenuRef = useRef(null);
+
+  useEffect(() => {
+    setIsOpen(false);
+    setIsUserMenuOpen(false);
+    setIsSidebarOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const navLinks = [
     { name: 'Home', path: '/', icon: Home },

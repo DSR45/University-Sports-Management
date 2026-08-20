@@ -21,20 +21,32 @@ export default function Login() {
     });
   };
 
+    const [errorMsg, setErrorMsg] = useState('');
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    setErrorMsg('');
+
+    if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setErrorMsg('Please enter a valid email address.');
+      return;
+    }
+    if (!formData.password || formData.password.length < 6) {
+      setErrorMsg('Password must be at least 6 characters.');
+      return;
+    }
+
     setLoading(true);
 
     try {
       const user = await login(formData.email, formData.password);
-      // Redirect based on role
       if (user.role === 'ADMIN') {
         navigate('/admin');
       } else {
         navigate('/home');
       }
     } catch (error) {
-      console.error('Login failed:', error);
+      setErrorMsg(error?.message || 'Login failed. Please check your credentials or backend server connection.');
     } finally {
       setLoading(false);
     }
@@ -109,6 +121,12 @@ export default function Login() {
               </button>
         </div>
           </label>
+
+                    {errorMsg && (
+            <div style={{ color: '#ef4444', fontSize: '12px', background: 'rgba(239, 68, 68, 0.1)', padding: '10px 14px', borderRadius: '10px', marginBottom: '16px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+              {errorMsg}
+            </div>
+          )}
 
           <button
             type="submit"
